@@ -25,11 +25,11 @@ def main():
     
         
     node1.initializeDHT()
-    node2.initializeDHT()
     
-    print(node1.getNext())
-    
-    node1.join([node2, node3], network)
+    node2.join([node1], network)
+    node3.join([node1, node2], network)
+    node4.join([node3, node2], network)
+    node5.join([node3, node1], network)
         
         
     top = node1.getTopology()
@@ -78,8 +78,8 @@ class DHTnode(object):
 
     def initializeDHT(self):
         """Para no caso de uma DHT vazia, inicia com o nó node"""
-        self.setNext = self
-        self.setPrevious = self
+        self.setNext(self)
+        self.setPrevious(self)
 
     def findResponsibleNode(self, key):
         """Nó responsável é o primeiro nó com índice maior que a chave"""
@@ -98,6 +98,15 @@ class DHTnode(object):
             nodeList.append(currentNode)
             currentNode = currentNode.getNext()
         return nodeList
+    
+    def getFirstNode(self):
+        currentNode, currentId = self, self.id
+        nextNode = currentNode.getNext()
+        while (currentId < nextNode.id):
+            currentNode, currentId = nextNode, nextNode.id
+            nextNode = currentNode.GetNext()
+        return nextNode
+            
     
     def join(self, knownNodes, network):
         """Recebe nó que deseja se conectar e uma lista de nós conhecidos"""
@@ -143,7 +152,7 @@ class DHTnode(object):
         newNode.setNext(originalNext)
         
     def __str__(self):
-        return f"Node at ip {self.ip} port {self.port}"
+        return f"Node at ip {self.ip} port {self.port} id {self.id}"
         
 if __name__ == "__main__":
     main()
