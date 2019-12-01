@@ -1,6 +1,6 @@
 #encoding: utf-8
 from Torrent import Torrent
-
+from util import hashFunction
 """
 A DHT substitui o servidor (tracker) que mantém informações 
 sobre quais peers possuem o torrent selecionado
@@ -50,7 +50,14 @@ class DHTnode(object):
         """Encontra nó responsável por key e armazena key-valor"""
         node = self.findResponsibleNode(key)
         node._storeAtThisNode(key, value)
-
+        
+    def retrieve(self, key):
+        node = self.findResponsibleNode(key)
+        try:
+            return node.dict.get(key)
+        except:
+            return None
+        
     def getPrevious(self):
         return self.previousNode
 
@@ -64,8 +71,7 @@ class DHTnode(object):
         self.nextNode = node
 
     def createID(self):
-        ID = hash(f"{self.ip}{self.port}")
-        ID = abs(ID)//1000000000000000
+        ID = hashFunction(f"{self.ip}{self.port}")
         return ID
 
     def initializeDHT(self):
@@ -79,11 +85,7 @@ class DHTnode(object):
     def _storeAtThisNode(self, key, value):
         self.dict.update({key: value})
 
-    def retrieve(self, key):
-        node = self.findResponsibleNode(key)
-        if key not in self.dict.keys():
-            return None
-        return self.dict.get(key)
+
     
     def insertAfter(self, node):
         """Insere newNode após node e atualiza info dos nós"""
@@ -160,6 +162,7 @@ class DHTnode(object):
         while correctNode.id == correctNode.getNext().id:
             correctNode = correctNode.getNext()
         return correctNode
+        
         
     def __str__(self):
         return f"Node at ip {self.ip} port {self.port} id {self.id}"
