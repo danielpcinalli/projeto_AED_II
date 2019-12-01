@@ -22,16 +22,13 @@ def main():
     
     for node in nodes:
         network.addNode(node)
-    
         
-    node1.initializeDHT()
-    
+    node1.join([], network)
     node2.join([node1], network)
     node3.join([node1, node2], network)
     node4.join([node3, node2], network)
-    node5.join([node3, node1], network)
-        
-        
+    node5.join([node3, node1], network)    
+    
     top = node1.getTopology()
     for node in top:
         print(node)
@@ -104,7 +101,7 @@ class DHTnode(object):
         nextNode = currentNode.getNext()
         while (currentId < nextNode.id):
             currentNode, currentId = nextNode, nextNode.id
-            nextNode = currentNode.GetNext()
+            nextNode = currentNode.getNext()
         return nextNode
             
     
@@ -118,7 +115,23 @@ class DHTnode(object):
             except Exception as e:
                 print(str(e))
                 continue
-            newNode.insertAfter(node)
+            currentNode = node.getFirstNode()
+            #caso onde há apenas um nó na DHT
+            if currentNode.id == currentNode.getNext().id:
+                newNode.insertAfter(currentNode)
+                return
+            #caso on id do nó a ser inserido é menor que o menor id presente na DHT
+            if currentNode.id >= newNode.id:
+                newNode.insertAfter(currentNode.getPrevious())
+                return
+            #caso on id do nó a ser inserido é maior que o maior id presente na DHT
+            if currentNode.getPrevious().id < newNode.id:
+                newNode.insertAfter(currentNode.getPrevious())
+                return
+            #caso geral
+            while currentNode.id < newNode.id:
+                currentNode = currentNode.getNext()
+            newNode.insertAfter(currentNode.getPrevious())
             return
         #caso nenhum nó exista, cria nova DHT
         self.initializeDHT()
