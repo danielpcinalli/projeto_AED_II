@@ -82,10 +82,9 @@ class DHTnode(object):
     def findResponsibleNode(self, key):
         """Nó responsável é o primeiro nó com índice maior que a chave"""
         return self.findNodeToInsert(self, key).getNext()
+        
     def _storeAtThisNode(self, key, value):
         self.dict.update({key: value})
-
-
     
     def insertAfter(self, node):
         """Insere newNode após node e atualiza info dos nós"""

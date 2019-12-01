@@ -1,8 +1,20 @@
 #encoding: utf-8
-
+"""
+Necessário criar uma pasta com nome 'Arquivos' e colocar arquivos mp3 dentro
+"""
 from Network import Network
 from DHT import DHTnode
 from Torrent import Torrent
+from random import randint
+import glob
+import os
+
+def randomIp():
+    def r(): 
+        return randint(0,256)
+    return f"{r()}.{r()}.{r()}.{r()}"
+
+PATH = "./Arquivos/"
 
 network = Network()
 
@@ -23,8 +35,11 @@ node3.join([node1, node2], network)
 node4.join([node3, node2], network)
 node5.join([node3, node1], network)
 
+
+files = [os.path.basename(x) for x in glob.glob(f"{PATH}*.mp3")]
+
 #popula com torrents de exemplo
-torrents = [Torrent(f"arq{i}","./Arquivos/") for i in range(0, 20)]
+torrents = [Torrent(filename ,PATH, [randomIp() for _ in range(1,3)]) for filename in files]
 for tor in torrents:
     node1.store(tor.getID(), tor)
 
